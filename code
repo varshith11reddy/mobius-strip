@@ -1,0 +1,61 @@
+import numpy as np
+from scipy.integrate import simpson
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+class MobiusStrip:
+    def __init__(self, R=5.0, w=10, n=100):
+        self.R = R
+        self.w = w
+        self.n = n
+        self.u = np.linspace(0, 2 * np.pi, n)
+        self.v = np.linspace(-w / 2, w / 2, n)
+        self.U, self.V = np.meshgrid(self.u, self.v)
+        self.X, self.Y, self.Z = self.compute_mesh()
+
+    def compute_mesh(self):
+        U, V, R = self.U, self.V, self.R
+        X = (R + V * np.cos(U / 2)) * np.cos(U)
+        Y = (R + V * np.cos(U / 2)) * np.sin(U)
+        Z = V * np.sin(U / 2)
+        return X, Y, Z
+
+    def surface_area(self):
+      dXu = np.gradient(self.X, axis=1)
+      dXv = np.gradient(self.X, axis=0)
+      dYu = np.gradient(self.Y, axis=1)
+      dYv = np.gradient(self.Y, axis=0)
+      dZu = np.gradient(self.Z, axis=1)
+      dZv = np.gradient(self.Z, axis=0)
+
+      cross_X = dYu * dZv - dZu * dYv
+      cross_Y = dZu * dXv - dXu * dZv
+      cross_Z = dXu * dYv - dYu * dXv
+
+      dA = np.sqrt(cross_X**2 + cross_Y**2 + cross_Z**2)
+
+      return simpson(simpson(dA, self.v), self.u)
+
+    def edge_length(self):
+      x1 = (self.R + self.w / 2 * np.cos(self.u / 2)) * np.cos(self.u)
+      y1 = (self.R + self.w / 2 * np.cos(self.u / 2)) * np.sin(self.u)
+      z1 = self.w / 2 * np.sin(self.u / 2)
+      points = np.stack([x1, y1, z1], axis=1)
+      diffs = np.diff(points, axis=0)
+      seg_lengths = np.linalg.norm(diffs, axis=1)
+      return np.sum(seg_lengths)
+   
+    def plot(self):
+      fig = plt.figure(figsize=(10, 7))
+      ax = fig.add_subplot(111, projection='3d')
+      ax.plot_surface(self.X, self.Y, self.Z, rstride=1, cstride=1, cmap='plasma', edgecolor='none')
+      ax.set_title('Möbius Strip Visualization')
+      plt.axis('off')
+      plt.tight_layout()
+      plt.show()
+
+if __name__ == "__main__":
+    mobius = MobiusStrip(R=1.0, w=0.3, n=200)
+    print(f"Surface Area ≈ {mobius.surface_area():.4f}")
+    print(f"Edge Length ≈ {mobius.edge_length():.4f}")
+    mobius.plot()
