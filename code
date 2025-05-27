@@ -59,3 +59,8 @@ if __name__ == "__main__":
     print(f"Surface Area ≈ {mobius.surface_area():.4f}")
     print(f"Edge Length ≈ {mobius.edge_length():.4f}")
     mobius.plot()
+
+
+
+
+colab link: https://colab.research.google.com/drive/1st-qInq0LA2SKBYeiO-qSMeb58ORjcwv?usp=sharing
